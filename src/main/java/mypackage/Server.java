@@ -6,6 +6,7 @@
 package mypackage;
 
 import java.net.*;
+import static java.util.stream.DoubleStream.builder;
 
 /**
  *
@@ -27,37 +28,32 @@ public class Server implements Runnable{
     @Override
     public void run() {
         System.out.println("inside run function");
-        byte [] data = new byte[1024];
-        DatagramPacket packet = new DatagramPacket(data , data.length);
+        
         running = true;
         
         while(running){
             try{
+                byte [] data = new byte[1024];
+                DatagramPacket packet = new DatagramPacket(data , data.length);
                 socket.receive(packet);
                 data = packet.getData();
                 String message = new String(data);
                 System.out.println("from me"+message);
-                this.packetMessage = message;
+                
                 Client.messageArea.append(message + '\n');
+                Client.statusText.setText("Recevied From IP = " + packet.getAddress() + " , Port = " + packet.getPort());
             }
             catch (Exception ex){
                 ex.printStackTrace();
             }
         }
     }
-    public String pacjetMessage(){
-        System.out.println("From fun : " + packetMessage);
-        return packetMessage;
-    }
+
     public void start (){
         Thread thread = new Thread(this);
         thread.start();
     }
     
-    public void stop (){
-        running = false;
-        socket.close();
-    }
     
     public void sendTo(InetSocketAddress address , String mesg){
         try{
